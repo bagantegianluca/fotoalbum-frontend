@@ -8,9 +8,6 @@ export default {
       store,
     };
   },
-  props: {
-    links: Array,
-  },
 };
 </script>
 
@@ -20,7 +17,7 @@ export default {
       <li
         class="page-item"
         :class="{ disabled: !link.url, active: link.active }"
-        v-for="link in links"
+        v-for="link in store.photos.links"
       >
         <button
           class="page-link"
