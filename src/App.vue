@@ -1,76 +1,40 @@
 <script>
-import axios from "axios";
+import { store } from "./store.js";
+import AppPagination from "./components/AppPagination.vue";
+import AppJumbotron from "./components/AppJumbotron.vue";
 
 export default {
   app: "Fotoalbum",
   data() {
     return {
-      photos: [],
-      baseApiUrl: "http://127.0.0.1:8000",
-      photosEndPoint: "/api/photos",
-      searchInput: "",
+      store,
     };
   },
-  methods: {
-    search() {
-      const url =
-        this.baseApiUrl + this.photosEndPoint + `?search=${this.searchInput}`;
-      this.callApi(url);
-    },
-
-    goToUrl(url) {
-      this.callApi(url);
-    },
-
-    callApi(url) {
-      axios
-        .get(url)
-        .then((response) => {
-          this.photos = response.data.results;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
+  components: {
+    AppPagination,
+    AppJumbotron,
   },
   mounted() {
-    const url = this.baseApiUrl + this.photosEndPoint;
-    this.callApi(url);
+    const url = store.baseApiUrl + store.photosEndPoint;
+    store.callApi(url);
   },
 };
 </script>
 
 <template>
-  <div class="p-5 mb-4 bg-light rounded-3">
-    <div class="container py-5">
-      <h1 class="display-5 fw-bold">Photos</h1>
-      <p class="col-md-8 fs-4">Take a look to my favourite pictures</p>
+  <AppJumbotron></AppJumbotron>
 
-      <form @submit.prevent="search()">
-        <div class="input-group mb-3">
-          <input
-            v-model="searchInput"
-            type="search"
-            class="form-control"
-            placeholder="Search photo title"
-          />
-          <button class="btn btn-outline-secondary" type="submit">
-            <i class="fas fa-search fa-lg fa-fw"></i>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <section class="photos" v-if="photos">
+  <section style="padding-top: 400px" class="photos" v-if="store.photos">
     <div class="container">
+      <AppPagination :links="store.photos.links"></AppPagination>
+
       <div class="row g-2">
-        <div class="col" v-for="photo in photos.data">
+        <div class="col" v-for="photo in store.photos.data">
           <div class="card h-100" style="width: 18rem">
             <template v-if="!photo.image.startsWith('https://')">
               <img
                 class="card-img-top"
-                :src="baseApiUrl + '/storage/' + photo.image"
+                :src="store.baseApiUrl + '/storage/' + photo.image"
                 alt="Card image cap"
               />
             </template>
@@ -92,24 +56,7 @@ export default {
         </div>
       </div>
 
-      <nav aria-label="Page navigation" class="mt-3">
-        <ul class="pagination">
-          <li
-            class="page-item"
-            :class="{ disabled: !link.url, active: link.active }"
-            v-for="link in photos.links"
-          >
-            <button
-              class="page-link"
-              :href="link.url"
-              type="button"
-              @click="goToUrl(link.url)"
-            >
-              <span aria-hidden="true" v-html="link.label"></span>
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <AppPagination :links="store.photos.links"></AppPagination>
     </div>
   </section>
 </template>
