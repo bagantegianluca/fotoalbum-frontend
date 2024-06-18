@@ -15,14 +15,18 @@ export default {
     search() {
       const url =
         this.baseApiUrl + this.photosEndPoint + `?search=${this.searchInput}`;
-      console.log(url);
       this.callApi(url);
     },
+
+    goToUrl(url) {
+      this.callApi(url);
+    },
+
     callApi(url) {
       axios
         .get(url)
         .then((response) => {
-          this.photos = response.data.results.data;
+          this.photos = response.data.results;
         })
         .catch((error) => {
           console.log(error);
@@ -61,7 +65,7 @@ export default {
   <section class="photos" v-if="photos">
     <div class="container">
       <div class="row g-2">
-        <div class="col" v-for="photo in photos">
+        <div class="col" v-for="photo in photos.data">
           <div class="card h-100" style="width: 18rem">
             <template v-if="!photo.image.startsWith('https://')">
               <img
@@ -87,6 +91,25 @@ export default {
           </div>
         </div>
       </div>
+
+      <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination">
+          <li
+            class="page-item"
+            :class="{ disabled: !link.url, active: link.active }"
+            v-for="link in photos.links"
+          >
+            <button
+              class="page-link"
+              :href="link.url"
+              type="button"
+              @click="goToUrl(link.url)"
+            >
+              <span aria-hidden="true" v-html="link.label"></span>
+            </button>
+          </li>
+        </ul>
+      </nav>
     </div>
   </section>
 </template>
